@@ -11,7 +11,7 @@
 * ID - 8-bit ID assembled by the unit, and given to digital core.           *
 *									    *
 ****************************************************************************/
-
+// Test
 module barcode(ID_vld, ID, BC, clr_ID_vld, clk, rst_n);
 
 typedef enum reg [2:0] {IDLE, PERIOD, WAIT, SAMPLE, VALIDATION} state_t;
