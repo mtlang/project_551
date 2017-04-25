@@ -13,7 +13,7 @@ module A2D_intf(clk,rst_n,strt_cnv,cnv_cmplt,chnnl,res,a2d_SS_n,SCLK,MOSI,MISO);
   wire [15:0] cmd;
 
   assign cmd = {2'b00,chnnl,11'h000};		// command to A2D is simply address of channel to convert
-
+	//hi
   ///////////////////////////////////////////////
   // Instantiate SPI master for A2D interface //
   /////////////////////////////////////////////
