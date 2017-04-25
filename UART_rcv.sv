@@ -4,7 +4,7 @@ typedef enum reg [1:0] {IDLE, START, RECEIVING} state_t;	// state names
 state_t state,		// current state
 	nxt_state;	// next state
 
-localparam BAUD = 2604;	// clk cycle per baud cycle [duration = BAUD*10 = 26,040 clks]
+localparam BAUD = 2603;	// clk cycle per baud cycle [duration = BAUD*10 = 26,040 clks]
 
 output reg rx_rdy;	// Asserted when a whole byte is received. Deasserted with rx_rdy_clr|| new byte
 output reg [7:0] rx_data;	// Byte received
@@ -27,7 +27,9 @@ reg [3:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
 
 // rx_rdy FF
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||rx_rdy_clr||start)
+	if (~rst_n)
+		rx_rdy <= 0;
+	else if (rx_rdy_clr | start)
 		rx_rdy <= 0;
 	else if (done)
 		rx_rdy <= 1;
@@ -58,16 +60,20 @@ end
 
 // baud counter for sampling
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||baud_cnt == BAUD||start)
+	if (~rst_n)
 		baud_cnt <= 12'h000;		
+	else if ( baud_cnt == BAUD||start)
+		baud_cnt <= 12'h000;
 	else
 		baud_cnt <= baud_cnt + 1;
 end
 
 // shift reg for received data
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||start)
+	if (~rst_n)
 		shift_reg <= 10'h000; // default
+	else if (start)
+		shift_reg <= 10'h000; // reset each time it starts
 	else if (shift)
 		shift_reg <= {RX, shift_reg[9:1]}; // right shift
 	else
@@ -76,7 +82,9 @@ end
 
 // cycle count for bits recevied
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||start)
+	if (~rst_n)
+		cycle_cnt <= 4'h0;
+	else if (start)
 		cycle_cnt <= 4'h0;
 	else if (shift)
 		cycle_cnt <= cycle_cnt + 1;
@@ -124,7 +132,7 @@ RECEIVING: begin
 			shift = 1;
 		
 	end
-	else if (baud_cnt == BAUD) begin
+	else if (baud_cnt == BAUD - 1) begin
 	done = 1;			
 	nxt_state = IDLE;	
 	end	
