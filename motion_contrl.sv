@@ -39,14 +39,10 @@ reg saturate; // Flag for saturating the adder result
 reg [15:0] dst; // Final result of ALU
 
 // State number signals
-typedef enum reg [2:0] {IDLE,PWM_EN_WAIT,A2D_CONV,ALU_CALC,
-  WAIT_32,FINAL_CALCS} state_t;
+typedef enum reg [3:0] {IDLE,PWM_EN_WAIT,A2D_CONV,ALU_CALC,
+  WAIT_32,CALC_INT, CALC_ICOMP_1,CALC_ICOMP_2,CALC_PCOMP_1,
+  CALC_PCOMP_2,CALC_ACCUM1,CALC_RHT,CALC_ACCUM2,CALC_LFT} state_t;
 state_t state, nxt_state;
-
-// Flag for final calculations
-typedef enum reg [3:0] {INT,ICOMP_1,ICOMP_2,PCOMP_1,PCOMP_2,
-  ACCUM1,RHT,ACCUM2,LFT} calc_flag_t;
-calc_flag_t calc_flag, nxt_flag;
 
 // Instantiate ALU module
 alu THE_ALU(.Accum(Accum),.Pcomp(Pcomp),.Icomp(Icomp),
@@ -65,13 +61,11 @@ always_ff @(posedge clk, negedge rst_n)
  if (!rst_n) begin
   state <= IDLE;
   chnnl <= 0;
-  calc_flag <= INT;
   int_dec <= 0;
  end
  else begin
   state <= nxt_state;
   chnnl <= nxt_chnnl;
-  calc_flag <= nxt_flag;
   int_dec <= nxt_int_dec;
  end
 
@@ -80,7 +74,7 @@ always_ff @(posedge clk, negedge rst_n)
   Fwd <= 12'h000;
  else if (~go) // if go deasserted Fwd knocked down so
   Fwd <= 12'b000; // we accelerate from zero on next start.
- else if ((calc_flag == ICOMP_1) & ~&Fwd[10:8]) // 43.75% full speed
+ else if ((state == CALC_INT) & ~&Fwd[10:8]) // 43.75% full speed
   Fwd <= Fwd + 1'b1;
 
 always_ff @(posedge clk, negedge rst_n)
@@ -92,9 +86,9 @@ always_ff @(posedge clk, negedge rst_n)
   rht <= 12'h000;
   lft <= 12'h000;
  end
- else if (calc_flag == RHT)
+ else if (state == CALC_RHT)
   rht <= dst[11:0];
- else if (calc_flag == LFT)
+ else if (state == CALC_LFT)
   lft <= dst[11:0];
 
 always_comb
@@ -104,7 +98,6 @@ always_comb begin
  ///// default outputs //////
  if (!rst_n) begin
  nxt_state = IDLE;
- nxt_flag = INT;
  start_conv = 0;
  IR_in_en = 0;
  IR_mid_en = 0;
@@ -140,6 +133,7 @@ always_comb begin
    IR_out_en = 0;
    en_tmr = 1;
   end
+  else en_tmr = 0;
   
   PWM_EN_WAIT : begin
    if (timer == 4096) begin
@@ -229,7 +223,7 @@ always_comb begin
    if (chnnl == 5 && timer == 2) begin
     en_tmr = 0;
     Error = dst;
-    nxt_state = FINAL_CALCS;
+    nxt_state = CALC_INT;
    end
   end
 
@@ -240,12 +234,9 @@ always_comb begin
    end
    else en_tmr = 1;
   end
-
-  ///// default case = FINAL_CALCS /////
-  default : begin 
-   // Complete each calculation in order   
-   case (calc_flag)
-    INT : begin
+   
+  // Complete each calculation in order   
+  CALC_INT : begin
     src1sel = 3;
     src0sel = 1;
     multiply = 0;
@@ -255,10 +246,10 @@ always_comb begin
     saturate = 1;
     nxt_int_dec = int_dec + 1;
     if (int_dec == 4) Intgrl = dst;
-    nxt_flag = ICOMP_1;
-    end
+    nxt_state = CALC_ICOMP_1;
+  end
 
-    ICOMP_1 : begin
+  CALC_ICOMP_1 : begin
     src1sel = 1;
     src0sel = 1;
     multiply = 1;
@@ -266,15 +257,15 @@ always_comb begin
     mult2 = 0;
     mult4 = 0;
     saturate = 1;
-    nxt_flag = ICOMP_2;
-    end
+    nxt_state = CALC_ICOMP_2;
+  end
 
-    ICOMP_2 : begin
-    Intgrl = dst;
-    nxt_flag = PCOMP_1;
-    end
+  CALC_ICOMP_2 : begin
+    Icomp = dst;
+    nxt_state = CALC_PCOMP_1;
+  end
 
-    PCOMP_1 : begin
+  CALC_PCOMP_1 : begin
     src1sel = 2;
     src0sel = 4;
     multiply = 1;
@@ -282,69 +273,71 @@ always_comb begin
     mult2 = 0;
     mult4 = 0;
     saturate = 0;
-    nxt_flag = PCOMP_2;
-    end
-
-    PCOMP_2 : begin
-    Pcomp = dst;
-    nxt_flag = ACCUM1;
-    end
-
-    ACCUM1 : begin
-    src1sel = 4;
-    src0sel = 3;
-    multiply = 0;
-    sub = 1;
-    mult2 = 0;
-    mult4 = 0;
-    saturate = 0;
-    Accum = dst;
-    nxt_flag = RHT;
-    end
-
-    RHT : begin
-    src1sel = 0;
-    src0sel = 2;
-    multiply = 0;
-    sub = 1;
-    mult2 = 0;
-    mult4 = 0;
-    saturate = 1;
-    nxt_flag = ACCUM2;
-    end
-
-    ACCUM2 : begin
-    src1sel = 4;
-    src0sel = 3;
-    multiply = 0;
-    sub = 0;
-    mult2 = 0;
-    mult4 = 0;
-    saturate = 0;
-    Accum = dst;
-    nxt_flag = LFT;
-    end
-
-    // default case = LFT
-    default : begin
-    src1sel = 0;
-    src0sel = 2;
-    multiply = 0;
-    sub = 0;
-    mult2 = 0;
-    mult4 = 0;
-    saturate = 1;
-    nxt_flag = INT;
-    nxt_state = IDLE;
-    end
-
-   endcase
+    nxt_state = CALC_PCOMP_2;
   end
+
+  CALC_PCOMP_2 : begin
+    Pcomp = dst;
+    nxt_state = CALC_ACCUM1;
+  end
+
+  CALC_ACCUM1 : begin
+    src1sel = 4;
+    src0sel = 3;
+    multiply = 0;
+    sub = 1;
+    mult2 = 0;
+    mult4 = 0;
+    saturate = 0;
+    Accum = dst;
+    nxt_state = CALC_RHT;
+  end
+
+  CALC_RHT : begin
+    src1sel = 0;
+    src0sel = 2;
+    multiply = 0;
+    sub = 1;
+    mult2 = 0;
+    mult4 = 0;
+    saturate = 1;
+    nxt_state = CALC_ACCUM2;
+  end
+
+  CALC_ACCUM2 : begin
+    src1sel = 4;
+    src0sel = 3;
+    multiply = 0;
+    sub = 0;
+    mult2 = 0;
+    mult4 = 0;
+    saturate = 0;
+    Accum = dst;
+    nxt_state = CALC_LFT;
+  end
+
+  // default case = CALC_LFT
+  default : begin
+    src1sel = 0;
+    src0sel = 2;
+    multiply = 0;
+    sub = 0;
+    mult2 = 0;
+    mult4 = 0;
+    saturate = 1;
+    nxt_state = IDLE;
+  end
+
  endcase
 
 end
 endmodule
 
+
+// Timer module
+// timer is the output
+// timer will be 0 when not enabled
+// when enabled, timer will count up each positive clock edge
 module motion_timer(timer, en_tmr, clk);
 input en_tmr, clk;
 output reg [12:0] timer;
