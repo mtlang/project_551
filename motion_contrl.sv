@@ -20,6 +20,7 @@ reg [1:0] int_dec;
 // ALU internal signals
 // Inputs for possible sources
 reg [15:0] Accum;
+reg [15:0] nxt_Accum;
 reg [15:0] Pcomp;
 reg [11:0] Icomp;
 reg [13:0] Pterm;
@@ -57,6 +58,7 @@ reg [12:0] timer;
 motion_timer THE_TIMER(timer, en_tmr, clk);
 
 /////////// infer state flops ///////////////
+// Also updates ALU signals, chnnl, and int_dec
 always_ff @(posedge clk, negedge rst_n)
  if (!rst_n) begin
   state <= IDLE;
@@ -67,6 +69,7 @@ always_ff @(posedge clk, negedge rst_n)
   state <= nxt_state;
   chnnl <= nxt_chnnl;
   int_dec <= nxt_int_dec;
+  Accum <= nxt_Accum;
  end
 
 always_ff @(posedge clk, negedge rst_n)
@@ -105,7 +108,7 @@ always_comb begin
  nxt_chnnl = 0;
  nxt_int_dec = 0;
 
- Accum = 0;
+ nxt_Accum = 0;
  Pcomp = 0;
  Icomp = 0;
  Pterm = 14'h3680;
@@ -156,7 +159,7 @@ always_comb begin
     en_tmr = 1;
     src0sel = 0;
     src1sel = 0;
-    Accum = A2D_res;
+    nxt_Accum = A2D_res;
    end 
    if (chnnl == 2 && timer == 0) begin
     en_tmr = 1;
@@ -199,14 +202,14 @@ always_comb begin
     saturate = 1;
    end
    if (chnnl % 2 == 0 && timer == 2) begin
-    if (chnnl != 0) Accum = dst;
+    if (chnnl != 0) nxt_Accum = dst;
     nxt_chnnl = chnnl + 1;    
     en_tmr = 0;
     nxt_state = WAIT_32;
    end
    if (chnnl == 1 && timer == 2) begin
     en_tmr = 0;
-    Accum = dst;
+    nxt_Accum = dst;
     IR_mid_en = 1;
     IR_in_en = 0;
     nxt_chnnl = chnnl + 1;
@@ -214,7 +217,7 @@ always_comb begin
    end
    if (chnnl == 3 && timer == 2) begin
     en_tmr = 0;
-    Accum = dst;
+    nxt_Accum = dst;
     IR_mid_en = 0;
     IR_out_en = 1;
     nxt_chnnl = chnnl + 1;
@@ -289,7 +292,7 @@ always_comb begin
     mult2 = 0;
     mult4 = 0;
     saturate = 0;
-    Accum = dst;
+    nxt_Accum = dst;
     nxt_state = CALC_RHT;
   end
 
@@ -312,7 +315,7 @@ always_comb begin
     mult2 = 0;
     mult4 = 0;
     saturate = 0;
-    Accum = dst;
+    nxt_Accum = dst;
     nxt_state = CALC_LFT;
   end
 
