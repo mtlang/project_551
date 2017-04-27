@@ -53,10 +53,12 @@ end
 
 // ff for ID_vld
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||ID_clear)
+	if (~rst_n)
 		ID_vld <= 1'b0;
 	else if (ID_set)
 		ID_vld <= 1'b1;
+	else if (ID_clear)
+		ID_vld <= 1'b0;
 	else
 		ID_vld <= ID_vld;
 end
@@ -65,8 +67,8 @@ end
 always@(posedge clk or negedge rst_n) begin
 if(~rst_n) begin
 		// preset FF as BC will be high normally
-		BC_FF1 <= 1;
-		BC_FF2 <= 1;
+		BC_FF1 <= 1'b1;
+		BC_FF2 <= 1'b1;
 	end
 	else begin
 		// FF in series used for edge detection
@@ -77,12 +79,15 @@ end
 
 // counter for 1/2 period
 always@(posedge clk or negedge rst_n) begin
-	if(~rst_n || start )
-		// reset to 0 when async rst is low, or new start is detected
-		half_period_cnt <= 0;		
+	if(~rst_n)
+		// reset to 0 when async rst is low
+		half_period_cnt <= 1'b0;	
+	else if (start)
+		// reset to 0 when barcode reader starts
+		half_period_cnt <= 1'b0;
 	else if (per_count)
 		// count half period for transcation
-		half_period_cnt <= half_period_cnt + 1;
+		half_period_cnt <= half_period_cnt + 1'b1;
 	else
 		// holds period to use for remaining 8 falling edges
 		half_period_cnt <= half_period_cnt;
@@ -92,7 +97,7 @@ end
 always@(posedge clk or negedge rst_n) begin
 	if(~rst_n)
 		// reset to 0
-		ID <= 0;
+		ID <= 1'b0;
 	else if (sample)
 		// samples at 1/2 period after falling edge of BC (MSB first)
 		// shift BC into lower bit, after 8 MSB or incoming data will be at MSB
@@ -103,21 +108,27 @@ end
 
 // when to sample counter
 always@(posedge clk or negedge rst_n) begin
-	if(~rst_n || clr_samp)
-		sample_cnt <= 0;
+	if(~rst_n)
+		// rest to 0
+		sample_cnt <= 1'b0;
+	else if (clr_sampl)
+		// clears sample
+		sample_nt <= 1'b0;
 	else if (i_sample_cnt)
 		// only increment when sample count i_sample_cnt is high
-		sample_cnt <= sample_cnt + 1;
+		sample_cnt <= sample_cnt + 1'b1;
 	else
 		sample_cnt <= sample_cnt; 
 end
 
 // cycle count after obtaining 1/2 period
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n || clr_cyc)
-		cycle_cnt <= 0;
+	if (~rst_n)
+		cycle_cnt <= 1'b0;
+	else if (clr_cyc)
+		cycle_cnt <= 1'b0;
 	else if (BC_falling_edge)
-		cycle_cnt <= cycle_cnt + 1;
+		cycle_cnt <= cycle_cnt + 1'b1;
 	else
 		cycle_cnt <= cycle_cnt;
 end
