@@ -28,11 +28,11 @@ reg [3:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
 // rx_rdy FF
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
-		rx_rdy <= 0;
+		rx_rdy <= 1'b0;
 	else if (rx_rdy_clr | start)
-		rx_rdy <= 0;
+		rx_rdy <= 1'b0;
 	else if (done)
-		rx_rdy <= 1;
+		rx_rdy <= 1'b1;
 	else
 		rx_rdy <= rx_rdy;
 end
@@ -65,7 +65,7 @@ always@(posedge clk or negedge rst_n) begin
 	else if ( baud_cnt == BAUD||start)
 		baud_cnt <= 12'h000;
 	else
-		baud_cnt <= baud_cnt + 1;
+		baud_cnt <= baud_cnt + 1'b1;
 end
 
 // shift reg for received data
@@ -87,7 +87,7 @@ always@(posedge clk or negedge rst_n) begin
 	else if (start)
 		cycle_cnt <= 4'h0;
 	else if (shift)
-		cycle_cnt <= cycle_cnt + 1;
+		cycle_cnt <= cycle_cnt + 1'b1;
 	else
 		cycle_cnt <= cycle_cnt;
 end
@@ -100,16 +100,16 @@ always_comb begin
 //////////////////////////
 // default //
 /////////////////////////
-start = 0;
-shift = 0;
-done = 0;
+start = 1'b0;
+shift = 1'b0;
+done = 1'b0;
 nxt_state = IDLE;
 
 // begin case
 case(state)
 IDLE: begin
 	if(falling_edge_rx) begin	// RX line pulled down to start transcation
-		start = 1;
+		start = 1'b1;
 		nxt_state = START;
 	end
 		
@@ -117,7 +117,7 @@ end
 
 START: begin
 	if (baud_cnt == BAUD/2) begin	// waits for 1/2 baud before samping first RX
-		shift = 1;
+		shift = 1'b1;
 		nxt_state = RECEIVING;
 	end
 	else 
@@ -129,11 +129,11 @@ RECEIVING: begin
 		nxt_state = RECEIVING;
 
 		if (baud_cnt == BAUD) // if baud count is reached, then sample does it 9 times
-			shift = 1;
+			shift = 1'b1;
 		
 	end
-	else if (baud_cnt == BAUD - 1) begin
-	done = 1;			
+	else if (baud_cnt == BAUD - 1'b1) begin
+	done = 1'b1;			
 	nxt_state = IDLE;	
 	end	
 	else
