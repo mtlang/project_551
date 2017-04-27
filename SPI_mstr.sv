@@ -6,7 +6,7 @@ typedef enum reg [1:0]{IDLE, START, BACK_PORCH} state_t;
 state_t state, nxt_state;
 
 output [15:0] rd_data;			// data packet from slave
-output  done,				// transaction complete
+output  reg done,				// transaction complete
        	   SS_n,				// slave select 1 bit
            MOSI, 				// MASTER OUTPUT SLAVE INPUT
            SCLK;				// operating clk for transaction driven by master
@@ -17,10 +17,11 @@ input wrt,				// signal to load cmd to shift reg
       MISO;				// MASTER INPUT SLAVE OUTPUT
 
 input [15:0] cmd;			// cmd to be loaded to shift register and sent to SLAVE
-
+wire [15:0] next_shift_reg;
 reg [15:0] shift_reg;			// 16 bit shift register for SPI master
 reg shift;				// shift register should shift two system clocks after the rise of SCLK
-
+wire [4:0] next_counter;
+wire [5:0] next_cycles;
 reg [4:0] counter; 			// 5 bit counter for mod 5 (32 divison)
 reg [5:0]  cycles; 			// counts how many shifts have occured
 
@@ -40,27 +41,42 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 // Main shift register
-always@(posedge clk) begin
-	if(wrt)
-		shift_reg <= cmd;		// load cmd into shift reg to begin transaction
-	else if (shift)
-		shift_reg <= {shift_reg[14:0], MISO};	// when shift is asserted shift MSB out and put MISO in LSB
+assign next_shift_reg = wrt ? cmd : 
+			shift ? {shift_reg[14:0], MISO} : shift_reg;
+
+always@(posedge clk or negedge rst_n) begin
+	if(~rst_n)
+		shift_reg <= 16'h0000;
+	else 
+		shift_reg <= next_shift_reg;	// when shift is asserted shift MSB out and put MISO in LSB
 end
+
 
 // sequential counter for mod 32 division and cycle to keep track of how many bits has been shifted
-always@(posedge clk) begin
- if (clr_cnt) begin
-	counter <= 5'b11110;			// offset to have SCLK be high 2 clk cycles after SS_n has been pulled low
-	cycles <= 6'b0000000;
- end
- else if (enable && counter == 5'b11111) begin	// reset counter when limit is reached (16 low and 16 high)
+assign next_counter = clr_cnt ? 5'b11110 : 
+		      (enable && counter == 5'b11111) ? 5'b00000: 
+		      enable ? (counter + 5'b00001) : counter;
+
+assign next_cycles = clr_cnt ? 6'b000000 : 
+		     (enable && counter == 5'b11111) ? (cycles + 6'b000001) : cycles;
+
+always@(posedge clk or negedge rst_n) begin
+ if(~rst_n)
 	counter <= 5'b00000;
-	cycles <= cycles + 1;			// increment cycles so we know how many bits have been shifted
- end
- else if (enable)
-	counter <= counter + 1;			// increment counter to get SCLK
+ else 
+	counter <= next_counter;// increment counter to get SCLK 
+//might need reset logic in these 
 
 end
+
+always@(posedge clk or negedge rst_n) begin
+ if(rst_n)
+	cycles <= 6'b000000;
+ else
+	cycles <= next_cycles; // increment counter to get SCLK
+
+end
+
 
 // sequential logic for SCLK for edge detection and when to assert various signals
 always@(posedge clk or negedge rst_n) begin
@@ -88,40 +104,41 @@ assign MOSI = sendMOSI ? shift_reg[15] : MOSI;
 // combinational logic
 always_comb begin
 // default values
-done = 0;
-SS_n = 1;
+done = 1'b0;
+SS_n = 1'b1;
 nxt_state = IDLE;
-clr_cnt = 0;
-enable = 0;
+clr_cnt = 1'b0;
+enable = 1'b0;
 
 
 case (state)
 IDLE: begin
   if (wrt) begin			// initiate MASTER SPI WRITE
-      SS_n = 0;
+      SS_n = 1'b0;
       nxt_state = START;
-      clr_cnt = 1;			// clears count and cycle so process starts smoothly
+      clr_cnt = 1'b1;			// clears count and cycle so process starts smoothly
   end
 end
 
 START: begin
-SS_n = 0;				// SS_n is pulled low for whole SPI transaction
+SS_n = 1'b0;				// SS_n is pulled low for whole SPI transaction
   if (sendMOSI) begin
-      enable = 1;
+      enable = 1'b1;
       nxt_state = START;
-  end else if (cycles == 17)		// if cycle is 17, then transaction is complete proceed to last state where it makes sure SCLK is high before SS_n is high
+  end else if (cycles == 6'b010001)		// if cycle is 17, then transaction is complete proceed to last state where it makes sure SCLK is high before SS_n is high
       nxt_state = BACK_PORCH;
   else begin
-      enable = 1;
+      enable = 1'b1;
       nxt_state = START;
   end
 end
 
 BACK_PORCH: begin
-  if (h_SS_n) begin			// When SCLK has been high for 2 consecutive clock cycles then it will pull up SS_n and flag device that transfer is complete
-      done = 1;
+  if (h_SS_n & (cycles == 1'b100001)) begin			// When SCLK has been high for 2 consecutive clock cycles then it will pull up SS_n and flag device that transfer is complete
+      //might be 1'b100010 not sure on number of cycles waited
+	done = 1'b1;
   end else begin
-      SS_n = 0;
+      SS_n = 1'b0;
       nxt_state = BACK_PORCH;
 end
 end
