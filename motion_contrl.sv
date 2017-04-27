@@ -17,7 +17,7 @@ reg [2:0] nxt_chnnl;
 reg [1:0] nxt_int_dec;
 reg [1:0] int_dec;
 
-// Internal ALU signals
+// ALU internal signals
 // Inputs for possible sources
 reg [15:0] Accum;
 reg [15:0] Pcomp;
@@ -97,6 +97,9 @@ always_ff @(posedge clk, negedge rst_n)
  else if (calc_flag == LFT)
   lft <= dst[11:0];
 
+always_comb
+  LEDs = Error[11:4];
+
 always_comb begin
  ///// default outputs //////
  if (!rst_n) begin
@@ -108,7 +111,6 @@ always_comb begin
  IR_out_en = 0;
  nxt_chnnl = 0;
  nxt_int_dec = 0;
- LEDs = 0;
 
  Accum = 0;
  Pcomp = 0;
