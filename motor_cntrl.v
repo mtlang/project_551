@@ -1,10 +1,14 @@
-module motor_cntrl(fwd_lft,rev_lft,fwd_rht,rev_rht,lft,rht);
+module motor_cntrl(clk, rst_n, fwd_lft,rev_lft,fwd_rht,rev_rht,lft,rht);
+
+input clk,
+      rst_n;
+	  
 input [10:0] lft;
 input [10:0] rht;
 
 output reg fwd_lft, rev_lft, fwd_rht, rev_rht;
 
-reg clk, lft_rst_n, rht_rst_n;
+reg lft_rst_n, rht_rst_n;
 reg [9:0] lft_sig;
 reg [9:0] rht_sig;
 wire pwm_lft, pwm_rht;
@@ -18,13 +22,6 @@ localparam REV = 2'b10;
 // Instantiate PWM modules
 pwm lft_pwm(.duty(lft_sig), .clk(clk), .rst_n(lft_rst_n), .PWM_sig(pwm_lft));
 pwm rht_pwm(.duty(rht_sig), .clk(clk), .rst_n(rht_rst_n), .PWM_sig(pwm_rht));
-
-// Shared logic
-initial begin
-clk = 0;
-end
-
-always #5 clk = ~clk;
 
 // Left logic
 always @ ( lft ) begin
