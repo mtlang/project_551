@@ -1,4 +1,4 @@
-module UART_rcv(rx_rdy, rx_data, clk, rst_n, RX, rx_rdy_clr);
+module UART_rcv(rx_rdy, rx_data, clk, rst_n, RX, clr_rx_rdy);
 
 typedef enum reg [1:0] {IDLE, START, RECEIVING} state_t;	// state names
 state_t state,		// current state
@@ -12,7 +12,7 @@ output reg [7:0] rx_data;	// Byte received
 input clk,		// 50MHz system clock
       rst_n,		// Active low async reset
       RX,		// Serial data input
-      rx_rdy_clr;	// Asserted to clear rx_rdy
+      clr_rx_rdy;	// Asserted to clear rx_rdy
 
 reg RX_FF1, RX_FF2;	// flop for falling edge detection
 
@@ -29,7 +29,7 @@ reg [3:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		rx_rdy <= 1'b0;
-	else if (rx_rdy_clr | start)
+	else if (clr_rx_rdy | start)
 		rx_rdy <= 1'b0;
 	else if (done)
 		rx_rdy <= 1'b1;
