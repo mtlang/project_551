@@ -1,4 +1,4 @@
-module motion_contrl(start_conv,IR_in_en,IR_mid_en,IR_out_en,
+module motion_cntrl(strt_cnv,IR_in_en,IR_mid_en,IR_out_en,
 chnnl,LEDs,lft,rht,clk,rst_n,go,cnv_cmplt,A2D_res);
 
 // Input signals
@@ -7,7 +7,7 @@ input go, cnv_cmplt;
 input [11:0] A2D_res;
 
 // Output signals
-output reg start_conv, IR_in_en, IR_mid_en, IR_out_en;
+output reg strt_cnv, IR_in_en, IR_mid_en, IR_out_en;
 output reg [2:0] chnnl;
 output reg [7:0] LEDs;
 output reg [10:0] lft;
@@ -101,7 +101,7 @@ always_comb begin
  ///// default outputs //////
  if (!rst_n) begin
  nxt_state = IDLE;
- start_conv = 0;
+ strt_cnv = 0;
  IR_in_en = 0;
  IR_mid_en = 0;
  IR_out_en = 0;
@@ -141,7 +141,7 @@ always_comb begin
   PWM_EN_WAIT : begin
    if (timer == 4096) begin
     nxt_state = A2D_CONV;
-    start_conv = 1;
+    strt_cnv = 1;
    end
    else en_tmr = 1;
   end 
@@ -150,7 +150,7 @@ always_comb begin
    if (cnv_cmplt) begin
     nxt_state = ALU_CALC;
     en_tmr = 0;
-    start_conv = 0;
+    strt_cnv = 0;
    end
   end
 
@@ -232,7 +232,7 @@ always_comb begin
 
   WAIT_32 : begin
    if (timer == 32) begin
-    start_conv = 1;
+    strt_cnv = 1;
     nxt_state = A2D_CONV; 
    end
    else en_tmr = 1;
