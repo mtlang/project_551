@@ -22,12 +22,16 @@ reg [1:0] int_dec;
 reg [15:0] Accum;
 reg [15:0] nxt_Accum;
 reg [15:0] Pcomp;
+reg [15:0] nxt_Pcomp;
 reg [11:0] Icomp;
+reg [11:0] nxt_Icomp;
 reg [13:0] Pterm;
 reg [11:0] Iterm;
 reg [11:0] Fwd;
 reg [11:0] Error;
+reg [11:0] nxt_Error;
 reg [11:0] Intgrl;
+reg [11:0] nxt_Intgrl;
 // Source select inputs
 reg [2:0] src0sel;
 reg [2:0] src1sel;
@@ -70,6 +74,10 @@ always_ff @(posedge clk, negedge rst_n)
   chnnl <= nxt_chnnl;
   int_dec <= nxt_int_dec;
   Accum <= nxt_Accum;
+  Pcomp <= nxt_Pcomp;
+  Icomp <= nxt_Icomp;
+  Error <= nxt_Error;
+  Intgrl <= nxt_Intgrl;
  end
 
 always_ff @(posedge clk, negedge rst_n)
@@ -109,12 +117,12 @@ always_comb begin
  nxt_int_dec = 0;
 
  nxt_Accum = 0;
- Pcomp = 0;
- Icomp = 0;
+ nxt_Pcomp = 0;
+ nxt_Icomp = 0;
  Pterm = 14'h3680;
  Iterm = 12'h500;
- Error = 0;
- Intgrl = 0;
+ nxt_Error = 0;
+ nxt_Intgrl = 0;
  src0sel = 0;
  src1sel = 0;
  multiply = 0; 
@@ -225,7 +233,7 @@ always_comb begin
    end
    if (chnnl == 5 && timer == 2) begin
     en_tmr = 0;
-    Error = dst;
+    nxt_Error = dst;
     nxt_state = CALC_INT;
    end
   end
@@ -248,7 +256,7 @@ always_comb begin
     mult4 = 0;
     saturate = 1;
     nxt_int_dec = int_dec + 1;
-    if (int_dec == 4) Intgrl = dst;
+    if (int_dec == 4) nxt_Intgrl = dst;
     nxt_state = CALC_ICOMP_1;
   end
 
@@ -264,7 +272,7 @@ always_comb begin
   end
 
   CALC_ICOMP_2 : begin
-    Icomp = dst;
+    nxt_Icomp = dst;
     nxt_state = CALC_PCOMP_1;
   end
 
@@ -280,7 +288,7 @@ always_comb begin
   end
 
   CALC_PCOMP_2 : begin
-    Pcomp = dst;
+    nxt_Pcomp = dst;
     nxt_state = CALC_ACCUM1;
   end
 
