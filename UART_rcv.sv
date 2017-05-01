@@ -1,4 +1,4 @@
-module UART_rcv(rx_rdy, rx_data, clk, rst_n, RX, clr_rx_rdy);
+module uart_rcv(rx_rdy, rx_data, clk, rst_n, RX, clr_rx_rdy);
 
 typedef enum reg [1:0] {IDLE, START, RECEIVING} state_t;	// state names
 state_t state,		// current state
@@ -62,7 +62,7 @@ end
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		baud_cnt <= 12'h000;		
-	else if ( baud_cnt == BAUD||start)
+	else if ( baud_cnt == BAUD||start||shift)
 		baud_cnt <= 12'h000;
 	else
 		baud_cnt <= baud_cnt + 1'b1;

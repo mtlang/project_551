@@ -36,7 +36,7 @@ wire BC_falling_edge;		// Falling edge of BC
 reg  start,			// Asserted to begin decoding barcode
      per_count,			// 1 if it is still counting 1/2 period, 0 otherwise
      sample,			// Used for when to sample + shift
-     clr_samp,			// Clear sample counter
+     clr_sampl,			// Clear sample counter
      clr_cyc,			// Clear cycle counter
      i_sample_cnt,		// Increment sample count
      ID_set,			// If true, then set ID vld
@@ -113,7 +113,7 @@ always@(posedge clk or negedge rst_n) begin
 		sample_cnt <= 1'b0;
 	else if (clr_sampl)
 		// clears sample
-		sample_nt <= 1'b0;
+		sample_cnt <= 1'b0;
 	else if (i_sample_cnt)
 		// only increment when sample count i_sample_cnt is high
 		sample_cnt <= sample_cnt + 1'b1;
@@ -143,7 +143,7 @@ always_comb begin
 start = 0;
 per_count = 0;
 sample = 0;
-clr_samp = 0;
+clr_sampl = 0;
 clr_cyc = 0;
 i_sample_cnt = 0;
 nxt_state = IDLE;
@@ -164,7 +164,7 @@ PERIOD: begin		// counting 1/2 period for reader
 	  nxt_state = PERIOD;
 	end
 	else begin
-	  clr_samp = 1;		// clear sample count [reg used to compare to period]
+	  clr_sampl = 1;		// clear sample count [reg used to compare to period]
 	  clr_cyc = 1;		// clear cycle count [reg used to keep track of cycles for sampling]
 	  nxt_state = WAIT;
 	end
@@ -185,7 +185,7 @@ SAMPLE: begin		// sampling 8 times
 		nxt_state = SAMPLE;
 
 		if (half_period_cnt == sample_cnt) begin
-			clr_samp = 1;
+			clr_sampl = 1;
 			sample = 1;
 			nxt_state = WAIT;
 		end
