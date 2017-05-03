@@ -93,12 +93,11 @@ reg [1:0] int_dec;
 reg inc_dec,
     int_dec_clr;
 
-reg [1:0] w_cnt;
-reg w_en,
+reg w_cnt,
+    w_en,
     w_clr;
 
-reg clr_c,
-    add_c;
+reg clr_c;
 
 reg sel_A2D,
     sel_Int,
@@ -282,12 +281,12 @@ always@(posedge clk or negedge rst_n) begin
 		int_dec <= int_dec;
 end
 
-// counter for multiplication (wait 3 cycles)
+// counter for multiplication (wait 2 cycles)
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
-		w_cnt <= 2'b00;
-	else if (w_clr || w_cnt == 2'b11)
-		w_cnt <= 2'b00;
+		w_cnt <= 1'b0;
+	else if (w_clr || w_cnt == 1'b1)
+		w_cnt <= 1'b0;
 	else if (w_en)
 		w_cnt <= w_cnt + 1;
 	else 
@@ -306,14 +305,30 @@ always@(posedge clk or negedge rst_n) begin
 		Fwd <= Fwd;
 end
 
+// chnnl reads from 1,0, 4, 2, 3, 7
 // chnnl ff
+reg set_c1,
+    set_c0,
+    set_c4,
+    set_c2,
+    set_c3,
+    set_c7;
+    
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		chnnl <= 3'h0;
-	else if (clr_c)
+	else if (clr_c|set_c0)
 		chnnl <= 3'h0;
-	else if (add_c)
-		chnnl <= chnnl + 1;
+	else if (set_c1)
+		chnnl <= 3'h1;
+	else if(set_c2)
+		chnnl <= 3'h2;
+	else if(set_c3)
+		chnnl <= 3'h3;
+	else if(set_c4)
+		chnnl <= 3'h4;
+	else if(set_c7)
+		chnnl <= 3'h7;
 	else
 		chnnl <= chnnl;
 end
@@ -403,7 +418,7 @@ assign LEDs = Error[11:4];
 always_comb begin
 ////////////////////////////////////////////
 // default outputs
-add_c = 0; clr_c = 0;
+clr_c = 0; set_c0 = 0; set_c1 = 0; set_c4 = 0; set_c2 = 0; set_c3 = 0; set_c7 = 0;
 timer_en = 0; timer_clr = 0;
 strt_cnv = 0;
 IR_in_en = 0; IR_mid_en = 0; IR_out_en = 0;
@@ -428,8 +443,8 @@ IDLE: begin
 	  PWM_clr = 1;
 	  clr_Accum = 1;
 	  timer_clr = 1;
-	  clr_c = 1;
 	  nxt_state = STTL;
+	  set_c1 = 1;			// read from INNER_RHT
 	end
 end
 STTL: begin
@@ -438,30 +453,30 @@ STTL: begin
 	PWM_en = 1;
 	timer_en = 1;
 	// PWM sig to enable 
-	if (chnnl == 0)
+	if (chnnl == 1)
 		IR_in_en = PWM_sig;
-	if (chnnl == 2)
-		IR_mid_en = PWM_sig;
 	if (chnnl == 4)
+		IR_mid_en = PWM_sig;
+	if (chnnl == 3)
 		IR_out_en = PWM_sig;
 	// done waiting for 4096 clocks
 	if (timer == 13'h1000) begin
 		// start A2D conversion
 		strt_cnv = 1;
 		// transition to different state depending on chnnl
-		if (chnnl == 0 ) begin
+		if (chnnl == 1 ) begin
 			sel_Accum = 1;		// src1 set to accum
 			sel_A2D = 1;		// src0 set to A2D
 			nxt_state = INNER_R;
 		end
-		if (chnnl == 2 ) begin
+		if (chnnl == 4 ) begin
 			sel_Accum = 1;		// src1 set to Accum
 			sel_A2D = 1;		// will be added with A2Dres
 			set_mul2 = 1;		// A2Dres will be multipled by 2 first
 			clr_sub = 1;
 			nxt_state = MID_R;
 		end
-		if (chnnl == 4 ) begin
+		if (chnnl == 3 ) begin
 			sel_Accum = 1;		// src1 set to Accum
 			sel_A2D = 1;		// src0 set to A2Dres
 			set_mul4 = 1;		// A2D will be multipled by 4 first
@@ -475,7 +490,7 @@ INNER_R: begin
 	PWM_en = 1;
 	IR_in_en = PWM_sig;
 	if (cnv_cmplt) begin
-		add_c = 1;
+		set_c0 = 1;	// next read is from INNER_LFT
 		dst2Accum = 1;	// result of Accum[0] + A2D goes to Accum
 		nxt_state = SHRT_WAIT;
 	end
@@ -486,7 +501,7 @@ MID_R: begin
 	PWM_en = 1;
 	IR_mid_en = PWM_sig;
 	if (cnv_cmplt) begin
-		add_c = 1;
+		set_c2 = 1;	// next mid  chnnl is 2 (mid_lft)
 		dst2Accum = 1; // result of Accum + A2D*2 is sent to accum
 		nxt_state = SHRT_WAIT;
 	end
@@ -497,7 +512,7 @@ OUTER_R: begin
 	PWM_en = 1;
 	IR_out_en = PWM_sig;
 	if (cnv_cmplt) begin
-		add_c = 1;
+		set_c7 = 1;   // next outer chnnl is 7 (out_lft)
 		dst2Accum = 1;
 		nxt_state = SHRT_WAIT;
 	end
@@ -509,29 +524,29 @@ SHRT_WAIT: begin
 	nxt_state = SHRT_WAIT;
 	timer_en = 1;
 	// PWM sig to enable 
-	if (chnnl == 1)
+	if (chnnl == 0)
 		IR_in_en = PWM_sig;
-	if (chnnl == 3)
+	if (chnnl == 2)
 		IR_mid_en = PWM_sig;
-	if (chnnl == 5)
+	if (chnnl == 7)
 		IR_out_en = PWM_sig;
 
 	if (timer == 32) begin
 		strt_cnv = 1;
-		if (chnnl == 1) begin
+		if (chnnl == 0) begin
 			sel_Accum = 1;	// src1 is Accum
 			sel_A2D = 1;	// src0 is A2D res
 			set_sub = 1;	// sub the values
 			nxt_state = INNER_L;
 		end
-		if (chnnl == 3) begin
+		if (chnnl == 2) begin
 			sel_Accum = 1;	// src1 is Accum
 			sel_A2D = 1;	// src0 is A2D res
 			set_sub = 1;	// sub the values
 			set_mul2 = 1;   // mul A2D res by 2 before sub			
 			nxt_state = MID_L;
 		end
-		if (chnnl == 5) begin
+		if (chnnl == 7) begin
 			sel_Accum = 1;	// src1 is Accum
 			sel_A2D = 1;	// src0 is A2D res
 			set_sub = 1;	// sub the values
@@ -545,7 +560,7 @@ INNER_L: begin
 	PWM_en = 1;
 	IR_in_en = PWM_sig;
 	if (cnv_cmplt) begin
-		add_c = 1;
+		set_c4 = 1; 	 // next sensor to read is c4 (mid_rht)
 		dst2Accum = 1;	// store value is accum
 		nxt_state = STTL;
 	end
@@ -556,7 +571,7 @@ MID_L: begin
 	PWM_en = 1;
 	IR_mid_en = PWM_sig;
 	if (cnv_cmplt) begin
-		add_c = 1;
+		set_c3 = 1;      // next sensor to read is c3 (out_rht)
 		dst2Accum = 1;	// dst to Accum
 		nxt_state = STTL;
 	end
@@ -567,7 +582,7 @@ OUTER_L: begin
 	PWM_en = 1;
 	IR_out_en = PWM_sig;
 	if (cnv_cmplt) begin
-		add_c = 1;
+		clr_c = 1;	// done reading channels so clear it
 		dst2Err = 1;	// dst to Error
 		nxt_state = INTG;
 		// select source for next operation
