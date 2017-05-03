@@ -72,7 +72,7 @@ assign sum_sat = (~sum[15] && sum > 16'h07FF) ? 16'h07FF :
 				  sum[11:0]; 
 // ripping bits from source 1 and 0 to use for 15x15 multiplication
 assign rip_src1 = pre_src1[14:0];
-assign rip_src0 = src0[14:0];
+assign rip_src0 = pre_src0[14:0];
 // signed multiplication value without saturation
 assign mul_30 = rip_src1*rip_src0;
 
@@ -82,7 +82,7 @@ assign mul_sat = (mul_30[29]) ? ((&mul_30[28:26]) ? mul_30[27:12] : 16'hC000) : 
 
 // determines output based on control signals from saturate and multiply
 assign dst = (multiply) ? mul_sat :
-	     ((saturate) ? {{4{sum_sat[11]}}, sum_sat} : sum ) ;
+	     ((saturate) ? {4'b000, sum_sat} : sum ) ;
 
 
 endmodule
