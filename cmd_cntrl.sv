@@ -31,8 +31,9 @@ input [7:0] cmd, 	// command received
 ///////////////////////////////////////////////////////////////////////////
 // registers & wires
 //////////////////////////////////////////////////////////////////////////
-wire en;
-
+wire en, next_cnt, next_in_transit, next_buzz;
+wire [13:0] next_buzz_cnt;
+wire [5:0] next_dest_ID;
 reg cnt;
 reg [5:0] dest_ID;
 reg unsigned [13:0] buzz_cnt;
@@ -58,36 +59,41 @@ end
 /////////////////////////////////////////////////////////////////////////
 // Latch dest ID
 /////////////////////////////////////////////////////////////////////////
+assign next_dest_ID = latch_ID ? cmd[5:0] : dest_ID;
+
+
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		dest_ID <= 6'h00;		// default dest_ID
-	else if (latch_ID)			
-		dest_ID <= cmd[5:0];		// latch station ID when high
+		// latch station ID when high
 	else
-		dest_ID <= dest_ID;		// otherwise stay the same
+		dest_ID <= next_dest_ID;		// otherwise stay the same
 end
 
 ////////////////////////////////////////////////////////////////////////////
 // In transit flop
 ///////////////////////////////////////////////////////////////////////////
+assign next_in_transit = clr_in_transit ? 1'b0 : 
+								 set_in_transit ? 1'b1 : in_transit;
+
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||clr_in_transit)
+	if (~rst_n)
 		in_transit <= 1'b0;		// default to 0
-	else if (set_in_transit)			
-		in_transit <= 1'b1;		// set
+		// set
 	else
-		in_transit <= in_transit;	// otherwise stay the same
+		in_transit <= next_in_transit;	// otherwise stay the same
 end
 ///////////////////////////////////////////////////////////////////////////
 // Wait 1 clock (counter)
 ///////////////////////////////////////////////////////////////////////////
+assign next_cnt = cnt ? 1'b0 :
+						inc ? (cnt + 1'b1) : cnt;
+
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||cnt == 1)
+	if (~rst_n)
 		cnt <= 1'b0;
-	else if (inc)
-		cnt <= cnt + 1;
-	else
-		cnt <= cnt;
+	else 
+		cnt <= next_cnt;
 end
 ///////////////////////////////////////////////////////////////////////////
 // Combinational logic for state machine
@@ -150,20 +156,25 @@ end
 ////////////////////////////////////////////////////////////////////////////
 // BUZZER
 ////////////////////////////////////////////////////////////////////////////
+assign next_buzz = (en & (buzz_cnt <= 12500/2)) ? 1'b1 :
+							en ? 1'b0 : buzz;
+
+assign next_buzz_cnt = (en & (buzz_cnt == 12500)) ? 14'h0000 : 
+								en ? (buzz_cnt + 1'b1) : buzz_cnt;
+
 always @(posedge clk or negedge rst_n) begin
-  if (!rst_n) begin
+  if (!rst_n)
     buzz <= 1'b0; // default output, 0
-    buzz_cnt <= 14'h0000; // default count, 0
-  end
-  else if (en) begin // Increase when enabled
-      buzz_cnt <= buzz_cnt + 1'b1;
-    if (buzz_cnt <= 12500/2) // 50% duty
-        buzz <= 1'b1;
-    else
-        buzz <= 1'b0;
-    end
-    if (buzz_cnt == 12500) // Don't just let it overflow. What should EXP_VALUE be?
-        buzz_cnt <= 14'h0000;
+  else 
+	 buzz <= next_buzz;
+end
+
+
+always @(posedge clk or negedge rst_n) begin
+  if (!rst_n)
+    buzz_cnt <= 14'h0000; // default output, 0
+  else 
+	 buzz_cnt <= next_buzz_cnt;
 end
 
 assign buzz_n = ~buzz;

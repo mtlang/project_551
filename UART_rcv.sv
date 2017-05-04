@@ -1,4 +1,4 @@
-module UART_rcv(rx_rdy, rx_data, clk, rst_n, RX, clr_rx_rdy);
+module uart_rcv(rx_rdy, rx_data, clk, rst_n, RX, clr_rx_rdy);
 
 typedef enum reg [1:0] {IDLE, START, RECEIVING} state_t;	// state names
 state_t state,		// current state
@@ -24,17 +24,18 @@ reg falling_edge_rx,	// 1 if RX is falling, 0 otherwise
 reg [11:0] baud_cnt;	// baud counter for when to sample
 reg [9:0] shift_reg;	// RX data is shifted into this reg
 reg [3:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
-
+wire next_rx_rdy;
+wire [11:0] next_baud_cnt;
+wire [9:0] next_shift_reg;
+wire [3:0] next_cycle_cnt;
 // rx_rdy FF
+assign next_rx_rdy = (clr_rx_rdy | start) ? 1'b0 : 
+			done ? 1'b1 : rx_rdy;
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		rx_rdy <= 1'b0;
-	else if (clr_rx_rdy | start)
-		rx_rdy <= 1'b0;
-	else if (done)
-		rx_rdy <= 1'b1;
 	else
-		rx_rdy <= rx_rdy;
+		rx_rdy <= next_rx_rdy;
 end
 
 
@@ -47,49 +48,51 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 // edge detection on RX_line
+
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n) begin
+	if (~rst_n)
 		RX_FF1 <= 1'b1;		// preset of ff
-		RX_FF2 <= 1'b1;
-	end
-	else begin
+	else
 		RX_FF1 <= RX;
-		RX_FF2 <= RX_FF1;
-	end
 end
 
+always@(posedge clk or negedge rst_n) begin
+	if (~rst_n)// preset of ff
+		RX_FF2 <= 1'b1;
+	else
+		RX_FF2 <= RX_FF1;
+	
+end
+
+
 // baud counter for sampling
+assign next_baud_cnt = ( baud_cnt == BAUD||start||shift) ? 12'h000 : baud_cnt + 1'b1;
+
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		baud_cnt <= 12'h000;		
-	else if ( baud_cnt == BAUD||start)
-		baud_cnt <= 12'h000;
 	else
-		baud_cnt <= baud_cnt + 1'b1;
+		baud_cnt <= next_baud_cnt;
 end
 
 // shift reg for received data
+assign next_shift_reg = start ? 10'h000 : 
+			shift ? {RX, shift_reg[9:1]} : shift_reg;
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		shift_reg <= 10'h000; // default
-	else if (start)
-		shift_reg <= 10'h000; // reset each time it starts
-	else if (shift)
-		shift_reg <= {RX, shift_reg[9:1]}; // right shift
 	else
-		shift_reg <= shift_reg;
+		shift_reg <= next_shift_reg;
 end
 
 // cycle count for bits recevied
+assign next_cycle_cnt = start ? 4'h0 : 
+			shift ? cycle_cnt + 1'b1 : cycle_cnt;
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		cycle_cnt <= 4'h0;
-	else if (start)
-		cycle_cnt <= 4'h0;
-	else if (shift)
-		cycle_cnt <= cycle_cnt + 1'b1;
 	else
-		cycle_cnt <= cycle_cnt;
+		cycle_cnt <= next_cycle_cnt;
 end
 
 assign falling_edge_rx = ~RX_FF1 & RX_FF2;	// falling detector for RX

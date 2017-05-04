@@ -22,8 +22,11 @@ reg [15:0] shift_reg;			// 16 bit shift register for SPI master
 reg shift;				// shift register should shift two system clocks after the rise of SCLK
 wire [4:0] next_counter;
 wire [5:0] next_cycles;
+reg inc_dcount;
+reg clr_dcnt;
 reg [4:0] counter; 			// 5 bit counter for mod 5 (32 divison)
 reg [5:0]  cycles; 			// counts how many shifts have occured
+reg [1:0] dcount;
 
 reg enable,				// enable the counter
     clr_cnt;				// clear both counter and cycles
@@ -31,6 +34,17 @@ reg enable,				// enable the counter
 reg SCLK_FF1, SCLK_FF2, SCLK_FF3;
 reg sendMOSI, h_SS_n;
 
+reg wrt_again;
+wire [1:0] next_dcount;
+
+assign next_dcount = inc_dcount ? dcount + 1'b1 :
+			clr_dcnt ? 2'b00 : dcount;
+always@(posedge clk or negedge rst_n) begin
+	if (~rst_n)
+		dcount <= 2'b00;
+	else 
+		dcount <= next_dcount;
+end
 
 // sequential state logic
 always@(posedge clk or negedge rst_n) begin
@@ -41,7 +55,7 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 // Main shift register
-assign next_shift_reg = wrt ? cmd : 
+assign next_shift_reg = wrt||wrt_again ? cmd : 
 			shift ? {shift_reg[14:0], MISO} : shift_reg;
 
 always@(posedge clk or negedge rst_n) begin
@@ -70,7 +84,7 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 always@(posedge clk or negedge rst_n) begin
- if(rst_n)
+ if(!rst_n)
 	cycles <= 6'b000000;
  else
 	cycles <= next_cycles; // increment counter to get SCLK
@@ -109,6 +123,9 @@ SS_n = 1'b1;
 nxt_state = IDLE;
 clr_cnt = 1'b0;
 enable = 1'b0;
+inc_dcount = 1'b0;
+clr_dcnt = 1'b0;
+wrt_again = 0;
 
 
 case (state)
@@ -117,6 +134,7 @@ IDLE: begin
       SS_n = 1'b0;
       nxt_state = START;
       clr_cnt = 1'b1;			// clears count and cycle so process starts smoothly
+      clr_dcnt = 1'b1;
   end
 end
 
@@ -125,8 +143,9 @@ SS_n = 1'b0;				// SS_n is pulled low for whole SPI transaction
   if (sendMOSI) begin
       enable = 1'b1;
       nxt_state = START;
-  end else if (cycles == 6'b010001)		// if cycle is 17, then transaction is complete proceed to last state where it makes sure SCLK is high before SS_n is high
+  end else if (cycles == 6'b010001) begin		// if cycle is 17, then transaction is complete proceed to last state where it makes sure SCLK is high before SS_n is high
       nxt_state = BACK_PORCH;
+  end
   else begin
       enable = 1'b1;
       nxt_state = START;
@@ -134,13 +153,20 @@ SS_n = 1'b0;				// SS_n is pulled low for whole SPI transaction
 end
 
 BACK_PORCH: begin
-  if (h_SS_n & (cycles == 1'b100001)) begin			// When SCLK has been high for 2 consecutive clock cycles then it will pull up SS_n and flag device that transfer is complete
-      //might be 1'b100010 not sure on number of cycles waited
+  if (h_SS_n && dcount == 1) begin			// When SCLK has been high for 2 consecutive clock cycles then it will pull up SS_n and flag device that transfer is complete
 	done = 1'b1;
-  end else begin
+  end 
+  else if (dcount != 1) begin
+      inc_dcount = 1'b1;
+      SS_n = 1'b0;
+      nxt_state = START;
+      clr_cnt = 1;
+      wrt_again = 1;
+end
+  else begin
       SS_n = 1'b0;
       nxt_state = BACK_PORCH;
-end
+  end
 end
 
 default:  // default state
@@ -149,3 +175,4 @@ endcase
 
 end
 endmodule
+
