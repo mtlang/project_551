@@ -71,8 +71,10 @@ end
 // In transit flop
 ///////////////////////////////////////////////////////////////////////////
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||clr_in_transit)
+	if (~rst_n)
 		in_transit <= 1'b0;		// default to 0
+	else if (clr_in_transit)
+		in_transit <= 1'b0;
 	else if (set_in_transit)			
 		in_transit <= 1'b1;		// set
 	else
@@ -82,7 +84,9 @@ end
 // Wait 1 clock (counter)
 ///////////////////////////////////////////////////////////////////////////
 always@(posedge clk or negedge rst_n) begin
-	if (~rst_n||cnt == 1)
+	if (~rst_n)
+		cnt <= 1'b0;
+	else if (cnt == 1)
 		cnt <= 1'b0;
 	else if (inc)
 		cnt <= cnt + 1;
@@ -152,18 +156,21 @@ end
 ////////////////////////////////////////////////////////////////////////////
 always @(posedge clk or negedge rst_n) begin
   if (!rst_n) begin
-    buzz <= 1'b0; // default output, 0
     buzz_cnt <= 14'h0000; // default count, 0
   end
-  else if (en) begin // Increase when enabled
-      buzz_cnt <= buzz_cnt + 1'b1;
-    if (buzz_cnt <= 12500/2) // 50% duty
-        buzz <= 1'b1;
-    else
-        buzz <= 1'b0;
-    end
-    if (buzz_cnt == 12500) // Don't just let it overflow. What should EXP_VALUE be?
-        buzz_cnt <= 14'h0000;
+  else if (buzz_cnt == 12500) // Don't just let it overflow.
+	buzz_cnt <= 14'h0000;
+  else if (en)  // Increase when enabled
+    buzz_cnt <= buzz_cnt + 1'b1;
+  else 
+	buzz_cnt <= buzz_cnt;
+end
+
+always @(posedge clk) begin
+  if (buzz_cnt <= 12500/2) // 50% duty
+    buzz <= 1'b1;
+  else
+    buzz <= 1'b0;
 end
 
 assign buzz_n = ~buzz;
