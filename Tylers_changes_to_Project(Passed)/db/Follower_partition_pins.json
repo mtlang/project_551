@@ -1,0 +1,117 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "led[0]",
+					"strict" : false
+				},
+				{
+					"name" : "led[1]",
+					"strict" : false
+				},
+				{
+					"name" : "led[2]",
+					"strict" : false
+				},
+				{
+					"name" : "led[3]",
+					"strict" : false
+				},
+				{
+					"name" : "led[4]",
+					"strict" : false
+				},
+				{
+					"name" : "led[5]",
+					"strict" : false
+				},
+				{
+					"name" : "led[6]",
+					"strict" : false
+				},
+				{
+					"name" : "led[7]",
+					"strict" : false
+				},
+				{
+					"name" : "a2d_SS_n",
+					"strict" : false
+				},
+				{
+					"name" : "SCLK",
+					"strict" : false
+				},
+				{
+					"name" : "MOSI",
+					"strict" : false
+				},
+				{
+					"name" : "rev_rht",
+					"strict" : false
+				},
+				{
+					"name" : "rev_lft",
+					"strict" : false
+				},
+				{
+					"name" : "fwd_rht",
+					"strict" : false
+				},
+				{
+					"name" : "fwd_lft",
+					"strict" : false
+				},
+				{
+					"name" : "IR_in_en",
+					"strict" : false
+				},
+				{
+					"name" : "IR_mid_en",
+					"strict" : false
+				},
+				{
+					"name" : "IR_out_en",
+					"strict" : false
+				},
+				{
+					"name" : "in_transit",
+					"strict" : false
+				},
+				{
+					"name" : "buzz",
+					"strict" : false
+				},
+				{
+					"name" : "buzz_n",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "OK2Move",
+					"strict" : false
+				},
+				{
+					"name" : "RST_n",
+					"strict" : false
+				},
+				{
+					"name" : "BC",
+					"strict" : false
+				},
+				{
+					"name" : "MISO",
+					"strict" : false
+				},
+				{
+					"name" : "RX",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

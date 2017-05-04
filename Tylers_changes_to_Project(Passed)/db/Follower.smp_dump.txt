@@ -1,0 +1,39 @@
+
+State Machine - |Follower|A2D_intf:iA2D|SPI_mstr:iSPI|state
+Name state.IDLE state.BACK_PORCH state.START 
+state.IDLE 0 0 0 
+state.START 1 0 1 
+state.BACK_PORCH 1 1 0 
+
+State Machine - |Follower|barcode:iBC|cur_state
+Name cur_state.SAMPLE cur_state.WAIT cur_state.PERIOD cur_state.IDLE cur_state.VALIDATION 
+cur_state.IDLE 0 0 0 0 0 
+cur_state.PERIOD 0 0 1 1 0 
+cur_state.WAIT 0 1 0 1 0 
+cur_state.SAMPLE 1 0 0 1 0 
+cur_state.VALIDATION 0 0 0 1 1 
+
+State Machine - |Follower|uart_rcv:iCMD|state
+Name state.IDLE state.RECEIVING state.START 
+state.IDLE 0 0 0 
+state.START 1 0 1 
+state.RECEIVING 1 1 0 
+
+State Machine - |Follower|dig_core:iCORE|motion_cntrl:iMTN|state
+Name state.MRT_L2 state.MRT_L1 state.MRT_R2 state.MRT_R1 state.PTERM state.ITERM state.INTG state.OUTER_L state.MID_L state.INNER_L state.SHRT_WAIT state.OUTER_R state.MID_R state.INNER_R state.STTL state.IDLE 
+state.IDLE 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state.STTL 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state.INNER_R 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state.MID_R 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state.OUTER_R 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state.SHRT_WAIT 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state.INNER_L 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state.MID_L 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state.OUTER_L 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state.INTG 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state.ITERM 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state.PTERM 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state.MRT_R1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state.MRT_R2 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.MRT_L1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.MRT_L2 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 

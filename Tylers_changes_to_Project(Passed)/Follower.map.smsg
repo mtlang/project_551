@@ -1,0 +1,6 @@
+Info (10281): Verilog HDL Declaration information at follower.v(6): object "RST_n" differs only in case from object "rst_n" in the same scope File: I:/FINALGITHUBFOLDER/project_551/Project(Passed)/follower.v Line: 6
+Info (10281): Verilog HDL Declaration information at cmd_cntrl.sv(6): object "GO" differs only in case from object "go" in the same scope File: I:/FINALGITHUBFOLDER/project_551/Project(Passed)/cmd_cntrl.sv Line: 6
+Info (10281): Verilog HDL Declaration information at UART_rcv.sv(3): object "START" differs only in case from object "start" in the same scope File: I:/FINALGITHUBFOLDER/project_551/Project(Passed)/UART_rcv.sv Line: 3
+Info (10281): Verilog HDL Declaration information at barcode.sv(17): object "SAMPLE" differs only in case from object "sample" in the same scope File: I:/FINALGITHUBFOLDER/project_551/Project(Passed)/barcode.sv Line: 17
+Info (10281): Verilog HDL Declaration information at motion_cntrl[meng].sv(20): object "PTERM" differs only in case from object "Pterm" in the same scope File: I:/FINALGITHUBFOLDER/project_551/Project(Passed)/motion_cntrl[meng].sv Line: 20
+Info (10281): Verilog HDL Declaration information at motion_cntrl[meng].sv(20): object "ITERM" differs only in case from object "Iterm" in the same scope File: I:/FINALGITHUBFOLDER/project_551/Project(Passed)/motion_cntrl[meng].sv Line: 20

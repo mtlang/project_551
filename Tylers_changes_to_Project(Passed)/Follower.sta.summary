@@ -1,0 +1,245 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 1200mV 85C Model Setup 'clk'
+Slack : -9.610
+TNS   : -1538.934
+
+Type  : Slow 1200mV 85C Model Setup 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : -4.973
+TNS   : -8.943
+
+Type  : Slow 1200mV 85C Model Setup 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : -1.855
+TNS   : -12.610
+
+Type  : Slow 1200mV 85C Model Setup 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : -1.006
+TNS   : -10.242
+
+Type  : Slow 1200mV 85C Model Setup 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : -0.917
+TNS   : -6.125
+
+Type  : Slow 1200mV 85C Model Setup 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : -0.755
+TNS   : -2.527
+
+Type  : Slow 1200mV 85C Model Hold 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : -0.310
+TNS   : -0.588
+
+Type  : Slow 1200mV 85C Model Hold 'clk'
+Slack : -0.197
+TNS   : -0.197
+
+Type  : Slow 1200mV 85C Model Hold 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : 0.095
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : 0.380
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : 0.474
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Hold 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : 0.506
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Recovery 'clk'
+Slack : -2.449
+TNS   : -716.465
+
+Type  : Slow 1200mV 85C Model Removal 'clk'
+Slack : 2.527
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'clk'
+Slack : -3.000
+TNS   : -327.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : 0.330
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : 0.360
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : 0.379
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : 0.407
+TNS   : 0.000
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : 0.410
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup 'clk'
+Slack : -8.515
+TNS   : -1350.457
+
+Type  : Slow 1200mV 0C Model Setup 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : -4.438
+TNS   : -7.979
+
+Type  : Slow 1200mV 0C Model Setup 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : -1.646
+TNS   : -10.983
+
+Type  : Slow 1200mV 0C Model Setup 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : -0.832
+TNS   : -8.272
+
+Type  : Slow 1200mV 0C Model Setup 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : -0.723
+TNS   : -4.619
+
+Type  : Slow 1200mV 0C Model Setup 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : -0.606
+TNS   : -1.929
+
+Type  : Slow 1200mV 0C Model Hold 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : -0.256
+TNS   : -0.256
+
+Type  : Slow 1200mV 0C Model Hold 'clk'
+Slack : -0.166
+TNS   : -0.166
+
+Type  : Slow 1200mV 0C Model Hold 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : 0.129
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : 0.423
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : 0.434
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Hold 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : 0.444
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Recovery 'clk'
+Slack : -2.132
+TNS   : -619.410
+
+Type  : Slow 1200mV 0C Model Removal 'clk'
+Slack : 2.290
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'clk'
+Slack : -3.000
+TNS   : -327.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : 0.354
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : 0.396
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : 0.421
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : 0.427
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : 0.439
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup 'clk'
+Slack : -5.322
+TNS   : -773.225
+
+Type  : Fast 1200mV 0C Model Setup 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : -2.733
+TNS   : -4.784
+
+Type  : Fast 1200mV 0C Model Setup 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : -1.015
+TNS   : -6.159
+
+Type  : Fast 1200mV 0C Model Setup 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : -0.248
+TNS   : -0.368
+
+Type  : Fast 1200mV 0C Model Setup 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : -0.102
+TNS   : -0.204
+
+Type  : Fast 1200mV 0C Model Setup 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : -0.075
+TNS   : -0.200
+
+Type  : Fast 1200mV 0C Model Hold 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : -0.048
+TNS   : -0.048
+
+Type  : Fast 1200mV 0C Model Hold 'clk'
+Slack : -0.017
+TNS   : -0.017
+
+Type  : Fast 1200mV 0C Model Hold 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : 0.003
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : 0.105
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : 0.121
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Hold 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : 0.607
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Recovery 'clk'
+Slack : -1.659
+TNS   : -491.727
+
+Type  : Fast 1200mV 0C Model Removal 'clk'
+Slack : 2.010
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'clk'
+Slack : -3.000
+TNS   : -416.320
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'motor_cntrl:iMTR|pwm:lft_pwm|cnt[0]'
+Slack : 0.270
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'uart_rcv:iCMD|baud_cnt[0]'
+Slack : 0.320
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'dig_core:iCORE|motion_cntrl:iMTN|rht_reg[10]'
+Slack : 0.332
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'A2D_intf:iA2D|SPI_mstr:iSPI|SCLK_FF1'
+Slack : 0.385
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'dig_core:iCORE|motion_cntrl:iMTN|lft_reg[10]'
+Slack : 0.392
+TNS   : 0.000
+
+------------------------------------------------------------
