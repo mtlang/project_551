@@ -4,7 +4,7 @@ typedef enum reg [1:0] {IDLE, START, RECEIVING} state_t;	// state names
 state_t state,		// current state
 	nxt_state;	// next state
 
-localparam BAUD = 2603;	// clk cycle per baud cycle [duration = BAUD*10 = 26,040 clks]
+localparam BAUD = 2604;	// clk cycle per baud cycle [duration = BAUD*10 = 26,040 clks]
 
 output reg rx_rdy;	// Asserted when a whole byte is received. Deasserted with rx_rdy_clr|| new byte
 output reg [7:0] rx_data;	// Byte received
@@ -23,18 +23,19 @@ reg falling_edge_rx,	// 1 if RX is falling, 0 otherwise
 
 reg [11:0] baud_cnt;	// baud counter for when to sample
 reg [9:0] shift_reg;	// RX data is shifted into this reg
-reg [3:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
+reg [4:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
+reg inc_cycle;
 wire next_rx_rdy;
 wire [11:0] next_baud_cnt;
 wire [9:0] next_shift_reg;
-wire [3:0] next_cycle_cnt;
-// rx_rdy FF
+wire [4:0] next_cycle_cnt;
+// rx_rdy FF 
 assign next_rx_rdy = (clr_rx_rdy | start) ? 1'b0 : 
 			done ? 1'b1 : rx_rdy;
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		rx_rdy <= 1'b0;
-	else
+	else if (clr_rx_rdy | start | done)
 		rx_rdy <= next_rx_rdy;
 end
 
@@ -67,7 +68,6 @@ end
 
 // baud counter for sampling
 assign next_baud_cnt = ( baud_cnt == BAUD||start||shift) ? 12'h000 : baud_cnt + 1'b1;
-
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
 		baud_cnt <= 12'h000;		
@@ -86,11 +86,11 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 // cycle count for bits recevied
-assign next_cycle_cnt = start ? 4'h0 : 
-			shift ? cycle_cnt + 1'b1 : cycle_cnt;
+assign next_cycle_cnt = start ? 5'h00 : 
+			shift|inc_cycle ? cycle_cnt + 1'b1 : cycle_cnt;
 always@(posedge clk or negedge rst_n) begin
 	if (~rst_n)
-		cycle_cnt <= 4'h0;
+		cycle_cnt <= 5'h00;
 	else
 		cycle_cnt <= next_cycle_cnt;
 end
@@ -106,6 +106,7 @@ always_comb begin
 start = 1'b0;
 shift = 1'b0;
 done = 1'b0;
+inc_cycle = 0;
 nxt_state = IDLE;
 
 // begin case
@@ -128,17 +129,21 @@ START: begin
 end
 
 RECEIVING: begin
-	if (cycle_cnt != 10) begin	// when cycle count is 10, then UART receving is done
+	if (cycle_cnt <= 9) begin	// when cycle count is 10, then UART receving is done
 		nxt_state = RECEIVING;
 
 		if (baud_cnt == BAUD) // if baud count is reached, then sample does it 9 times
 			shift = 1'b1;
 		
 	end
-	else if (baud_cnt == BAUD - 1'b1) begin
+	else if (baud_cnt == BAUD/2 && cycle_cnt == 11) begin
 	done = 1'b1;			
 	nxt_state = IDLE;	
-	end	
+	end
+	else if (baud_cnt == BAUD && cycle_cnt == 10) begin
+	inc_cycle = 1;
+	nxt_state = RECEIVING;
+	end
 	else
 		nxt_state = RECEIVING;
 

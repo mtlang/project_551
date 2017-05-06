@@ -26,6 +26,8 @@ input clk,			// System clock
 
 reg BC_FF1, BC_FF2;		// BC FF's used for edge detection
 
+reg BC_flop1, BC_flop2;
+
 reg [21:0] half_period_cnt, 	// Counter for half of period, after start bit
 	   sample_cnt;		// counter for when to sample, will count to half_period_cnt
 
@@ -44,6 +46,16 @@ reg  start,			// Asserted to begin decoding barcode
      ID_set,			// If true, then set ID vld
      ID_clear;			// If true, then deassert ID vld
 
+// sync incoming BC to system clock
+always@(posedge clk or negedge rst_n) begin
+	if (~rst_n) begin
+				BC_flop1 <= 1'b1;
+				BC_flop2 <= 1'b1;
+			end
+			else
+				BC_flop1 <= BC;
+				BC_flop2 <= BC_flop1;
+end
 
 // state machine
 always@(posedge clk or negedge rst_n) begin
@@ -75,7 +87,7 @@ if(~rst_n) begin
 	end
 	else begin
 		// FF in series used for edge detection
-		BC_FF1 <= BC;
+		BC_FF1 <= BC_flop2;
 		BC_FF2 <= BC_FF1;
 	end
 end
@@ -152,7 +164,7 @@ IDLE: begin
 end
 
 PERIOD: begin		// counting 1/2 period for reader
-	if(~BC) begin
+	if(~BC_flop2) begin
 	  per_count = 1;
 	  nxt_state = PERIOD;
 	end

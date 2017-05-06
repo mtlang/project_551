@@ -10,6 +10,8 @@ output reg fwd_lft, rev_lft, fwd_rht, rev_rht;
 
 reg [9:0] lft_sig;
 reg [9:0] rht_sig;
+wire [10:0] lft_mag;
+wire [10:0] rht_mag;
 wire pwm_lft, pwm_rht;
 
 reg [1:0] lft_mode;
@@ -21,6 +23,9 @@ localparam REV = 2'b10;
 // Instantiate PWM modules
 pwm lft_pwm(.duty(lft_sig), .clk(clk), .rst_n(rst_n), .PWM_sig(pwm_lft));
 pwm rht_pwm(.duty(rht_sig), .clk(clk), .rst_n(rst_n), .PWM_sig(pwm_rht));
+
+assign lft_mag = (lft[10]) ? ((lft[9:0]==10'h000) ? 10'h3ff : (11'h400 - lft[9:0])) : lft[9:0];
+assign rht_mag = (rht[10]) ? ((rht[9:0]==10'h000) ? 10'h3ff : (11'h400 - rht[9:0])) : rht[9:0];
 
 // Left logic
 always @ ( lft ) begin
@@ -51,13 +56,13 @@ rev_lft = 1'b1;
 end 
 // FWD mode logic
 else if (lft_mode == FWD) begin
-lft_sig = lft[9:0];
+lft_sig = lft_mag[9:0];
 fwd_lft = pwm_lft;
 rev_lft = 1'b0;
 end
 // REV mode logic
 else begin
-lft_sig = lft[9:0];
+lft_sig = lft_mag[9:0];
 fwd_lft = 1'b0;
 rev_lft = pwm_lft;
 end
@@ -70,13 +75,13 @@ rev_rht = 1'b1;
 end 
 // FWD mode logic
 else if (rht_mode == FWD) begin
-rht_sig = rht[9:0];
+rht_sig = rht_mag[9:0];
 fwd_rht = pwm_rht;
 rev_rht = 1'b0;
 end
 // REV mode logic
 else begin
-rht_sig = rht[9:0];
+rht_sig = rht_mag[9:0];
 fwd_rht = 1'b0;
 rev_rht = pwm_rht;
 end
