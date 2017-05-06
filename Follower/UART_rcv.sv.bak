@@ -25,11 +25,10 @@ reg [11:0] baud_cnt;	// baud counter for when to sample
 reg [9:0] shift_reg;	// RX data is shifted into this reg
 reg [4:0] cycle_cnt;	// keeps track of cycles, done after 10 cycles
 reg inc_cycle;
-wire next_rx_rdy;	// feeds the rx_rdy flip flop
-wire [11:0] next_baud_cnt;	// feeds the baud_cnt flip flop
-wire [9:0] next_shift_reg;	// feeds the shift_reg flip flop
-wire [4:0] next_cycle_cnt;	// feeds the cycle_cnt flip flop
-
+wire next_rx_rdy;
+wire [11:0] next_baud_cnt;
+wire [9:0] next_shift_reg;
+wire [4:0] next_cycle_cnt;
 // rx_rdy FF 
 assign next_rx_rdy = (clr_rx_rdy | start) ? 1'b0 : 
 			done ? 1'b1 : rx_rdy;

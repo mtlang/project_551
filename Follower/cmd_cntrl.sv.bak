@@ -31,9 +31,9 @@ input [7:0] cmd, 	// command received
 ///////////////////////////////////////////////////////////////////////////
 // registers & wires
 //////////////////////////////////////////////////////////////////////////
-wire en, next_cnt, next_in_transit, next_buzz;	// Feeds the cnt, in_transit, and buzz flip flops
-wire [13:0] next_buzz_cnt;	// Feeds the buzz_cnt flip flop
-wire [5:0] next_dest_ID;	// Feeds the dest_ID flip flop
+wire en, next_cnt, next_in_transit, next_buzz;
+wire [13:0] next_buzz_cnt;
+wire [5:0] next_dest_ID;
 reg cnt;
 reg [5:0] dest_ID;
 reg unsigned [13:0] buzz_cnt;

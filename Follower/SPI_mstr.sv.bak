@@ -31,11 +31,11 @@ reg [1:0] dcount;
 reg enable,				// enable the counter
     clr_cnt;				// clear both counter and cycles
 
-reg SCLK_FF1, SCLK_FF2, SCLK_FF3;	// system clock flip flops for edge detection
-reg sendMOSI, h_SS_n;			// sends MOSI to slave, detects if SS_n is high for two cycles
+reg SCLK_FF1, SCLK_FF2, SCLK_FF3;
+reg sendMOSI, h_SS_n;
 
-reg wrt_again;				// writes again in order to sync signals
-wire [1:0] next_dcount; 		// feeds the dcount flip flop
+reg wrt_again;
+wire [1:0] next_dcount;
 
 assign next_dcount = inc_dcount ? dcount + 1'b1 :
 			clr_dcnt ? 2'b00 : dcount;

@@ -71,7 +71,7 @@ reg dst2Accum,
     dst2lft,
     dst2rht,
     clr_Accum;
-// The following wires feed the flip flops that output the value specified by the name preceded by next_
+
 wire [2:0] next_src0sel;
 wire [2:0] next_src1sel;
 wire  [7:0] next_PWM_cnt;

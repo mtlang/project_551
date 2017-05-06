@@ -52,10 +52,9 @@ always@(posedge clk or negedge rst_n) begin
 				BC_flop1 <= 1'b1;
 				BC_flop2 <= 1'b1;
 			end
-			else begin
+			else
 				BC_flop1 <= BC;
 				BC_flop2 <= BC_flop1;
-			end
 end
 
 // state machine
