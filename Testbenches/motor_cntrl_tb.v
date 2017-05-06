@@ -1,9 +1,13 @@
 module motor_cntrl_tb;
+
+// Inputs
 reg [10:0] lft;
 reg [10:0] rht;
 
+// Outputs
 wire fwd_lft, rev_lft, fwd_rht, rev_rht;
 
+// Instantiate motor controller
 motor_cntrl iDUT(.fwd_lft(fwd_lft), .rev_lft(rev_lft), .fwd_rht(fwd_rht), 
 	 .rev_rht(rev_rht), .lft(lft), .rht(rht));
 
@@ -37,7 +41,6 @@ rht = 11'h401;
 // Test Brake Mode (as non-initial condition)
 lft = 11'h000;
 rht = 11'h000;
-#50000;
 end
 
 endmodule
