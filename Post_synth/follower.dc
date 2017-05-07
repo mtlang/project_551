@@ -1,0 +1,69 @@
+## Read all files needed for follower robot
+read_file -format sverilog {follower.v, dig_core.sv , UART_rcv.sv , \
+motor_cntrl.v , barcode.sv , A2D_intf.sv , cmd_cntrl.sv , \
+motion_cntrl.sv , alu.sv , pwm.v , SPI_mstr.sv }
+
+# create a 400MHz clock (period = 2.5ns) and dont mess with it
+create_clock -name "clk" -period 2.5 -waveform {0 1.25} {clk}
+set_dont_touch_network [find port clk]
+
+# setup pointer that contains all inputs except clock #
+set prim_inputs [remove_from_collection [all_inputs] [find port clk]]
+
+#########################################
+# Set input delay & drive on all inputs #
+#########################################
+set_input_delay -clock clk 0.5 [copy_collection $prim_inputs]
+set_driving_cell -lib_cell ND2D2BWP -from_pin A1 -library tcbn40lpbwptc $prim_inputs
+
+#rst is strongly driven
+set_drive 0.1 RST_n
+
+#########################
+# Output delay and load #
+#########################
+set_output_delay -clock clk 0.5 [all_outputs] 
+set_load 0.1 [all_outputs]
+
+#################
+# Wireload mode #
+#################
+set_wire_load_model -name TSMC3K_Lowk_Conservative -library tcbn40lpbwptc
+
+#########################
+# Max transistion time  #
+#########################
+ set_max_transition 0.15 [current_design]
+
+ #########################
+ # 1st Compile of design #
+ #########################
+ compile -map_effort medium
+ 
+#########################
+# Set clock uncertainty #
+#########################
+ set_clock_uncertainty 0.1 clk
+ 
+ #####################
+ # Flatten hierarchy #
+ #####################
+ ungroup -all -flatten
+ 
+ #########################
+ # 2nd Compile of design #
+ #########################
+ compile -map_effort medium
+ 
+ ###########################
+ # Timing and area reports #
+ ###########################
+ 
+ report_timing -delay max > max_report.txt
+ report_timing -delay min > min_report.txt
+ report_area > report.txt
+ 
+ ###########################################
+ # Write out resulting synthesized netlist #
+ ###########################################
+ write -format verilog Follower -output Follower.vg
