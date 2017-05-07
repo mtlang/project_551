@@ -108,7 +108,7 @@ always@(posedge clk or negedge rst_n) begin
 end
 
 // shift register for ID
-assign next_ID = sample ? {ID[6:0], BC} : ID;
+assign next_ID = sample ? {ID[6:0], BC_flop2} : ID;
 
 always@(posedge clk or negedge rst_n) begin
 	if(~rst_n)
