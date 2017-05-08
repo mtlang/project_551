@@ -1,0 +1,129 @@
+Area and timing results from synthesis report
+Cell area: 5755.402864
+Max delay: met by 0
+
+------------------------------ copy of output under---------------------------------
+*******************************************MAX DELAY********************************
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : Follower
+Version: L-2016.03
+Date   : Sun May  7 11:39:45 2017
+****************************************
+
+Operating Conditions: NCCOM   Library: tcbn40lpbwptc
+Wire Load Model Mode: segmented
+
+  Startpoint: iA2D/iSPI/dcount_reg[0]
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: iCORE/iMTN/Error_reg[3]
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  Follower           ZeroWireload          tcbn40lpbwptc
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  iA2D/iSPI/dcount_reg[0]/CP (DFCND1BWP)                  0.00       0.00 r
+  iA2D/iSPI/dcount_reg[0]/Q (DFCND1BWP)                   0.12       0.12 r
+  U2864/ZN (IND3D4BWP)                                    0.04       0.16 f
+  U1626/ZN (CKND4BWP)                                     0.02       0.19 r
+  U2412/ZN (CKND2D4BWP)                                   0.02       0.20 f
+  U3075/ZN (CKND2BWP)                                     0.02       0.22 r
+  iA2D/iSPI/U14/Z (AO22D1BWP)                             0.05       0.27 r
+  U979/ZN (OAI221D2BWP)                                   0.05       0.32 f
+  U3049/ZN (OAI32D1BWP)                                   0.06       0.38 r
+  U3070/ZN (INVD1BWP)                                     0.03       0.41 f
+  U2659/ZN (INR2XD0BWP)                                   0.03       0.44 r
+  U4057/ZN (MUX2ND0BWP)                                   0.03       0.47 f
+  U3720/ZN (OAI21D1BWP)                                   0.04       0.51 r
+  U1634/Z (OA21D2BWP)                                     0.07       0.57 r
+  U2348/ZN (MAOI22D1BWP)                                  0.03       0.60 f
+  U2020/ZN (CKND2D2BWP)                                   0.03       0.63 r
+  U2689/Z (CKXOR2D2BWP)                                   0.08       0.71 f
+  U4164/Z (XOR4D1BWP)                                     0.14       0.85 f
+  U1639/ZN (XNR2D2BWP)                                    0.08       0.92 f
+  U2912/ZN (AOI21D1BWP)                                   0.05       0.97 r
+  U4170/ZN (AOI32D1BWP)                                   0.04       1.01 f
+  U2577/ZN (ND2D1BWP)                                     0.03       1.04 r
+  U2828/ZN (XNR2D2BWP)                                    0.09       1.13 f
+  U1770/ZN (OAI21D4BWP)                                   0.03       1.17 r
+  U4214/Z (XOR4D2BWP)                                     0.16       1.32 f
+  U2204/ZN (CKND2BWP)                                     0.03       1.35 r
+  U2776/ZN (CKND2D2BWP)                                   0.03       1.38 f
+  U2710/ZN (ND2D1BWP)                                     0.02       1.40 r
+  U2715/ZN (INVD1BWP)                                     0.02       1.42 f
+  U2268/ZN (OAI222D2BWP)                                  0.04       1.46 r
+  U2551/ZN (XNR2D2BWP)                                    0.11       1.57 f
+  U3086/ZN (OAI32D2BWP)                                   0.06       1.63 r
+  U2533/ZN (AOI211XD1BWP)                                 0.05       1.68 f
+  U3787/Z (XOR3D2BWP)                                     0.13       1.81 r
+  U2188/ZN (INVD2BWP)                                     0.02       1.83 f
+  U2353/ZN (MOAI22D1BWP)                                  0.03       1.86 r
+  U2409/Z (XOR2D1BWP)                                     0.09       1.95 f
+  U1780/ZN (ND2D2BWP)                                     0.03       1.98 r
+  U2183/ZN (INVD2BWP)                                     0.02       2.00 f
+  U2182/ZN (IND2D2BWP)                                    0.02       2.01 r
+  U3088/ZN (NR2D2BWP)                                     0.01       2.03 f
+  U1787/ZN (INR4D2BWP)                                    0.03       2.06 r
+  U2037/ZN (ND3D2BWP)                                     0.04       2.10 f
+  U2526/ZN (CKND2BWP)                                     0.02       2.12 r
+  U3792/ZN (OAI31D2BWP)                                   0.02       2.14 f
+  U3715/ZN (CKND2BWP)                                     0.02       2.17 r
+  U2658/ZN (IND3D4BWP)                                    0.03       2.20 f
+  U3190/ZN (AOI221D2BWP)                                  0.09       2.29 r
+  U2960/ZN (CKND2D2BWP)                                   0.04       2.33 f
+  iCORE/iMTN/Error_reg[3]/D (EDFCNQD1BWP)                 0.00       2.33 f
+  data arrival time                                                  2.33
+
+  clock clk (rise edge)                                   2.50       2.50
+  clock network delay (ideal)                             0.00       2.50
+  clock uncertainty                                      -0.10       2.40
+  iCORE/iMTN/Error_reg[3]/CP (EDFCNQD1BWP)                0.00       2.40 r
+  library setup time                                     -0.07       2.33
+  data required time                                                 2.33
+  --------------------------------------------------------------------------
+  data required time                                                 2.33
+  data arrival time                                                 -2.33
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.00
+
+
+1
+****************************************AREA**************************************
+Report : area
+Design : Follower
+Version: L-2016.03
+Date   : Sun May  7 11:39:45 2017
+****************************************
+
+Library(s) Used:
+
+    tcbn40lpbwptc (File: /cae/apps/data/tsmclibs-2013/digital/Front_End/timing_power_noise/NLDM/tcbn40lpbwp_120b/tcbn40lpbwptc.db)
+
+Number of ports:                           27
+Number of nets:                          3933
+Number of cells:                         3807
+Number of combinational cells:           3453
+Number of sequential cells:               354
+Number of macros/black boxes:               0
+Number of buf/inv:                       1017
+Number of references:                     213
+
+Combinational area:               4309.099275
+Buf/Inv area:                      683.550019
+Noncombinational area:            1446.303589
+Macro/Black Box area:                0.000000
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:                  5755.402864
+Total area:                 undefined
+1
